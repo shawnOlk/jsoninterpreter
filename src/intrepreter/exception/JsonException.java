@@ -1,4 +1,4 @@
-package intrepreter.manager.impl;
+package intrepreter.exception;
 
 /**
  * Created by sunlei on 2017/6/13.

@@ -2,6 +2,7 @@ package intrepreter.manager.impl;
 
 import intrepreter.constains.TokenTypeEnum;
 import intrepreter.domain.Token;
+import intrepreter.exception.JsonException;
 import intrepreter.manager.TokenFilter;
 
 import java.io.IOException;
@@ -18,7 +19,6 @@ public class TokenFilterImpl implements TokenFilter {
     public TokenFilterImpl(Reader reader) {
         this.reader = reader;
     }
-
 
     public List<Token> getTokens() {
         List<Token> tokens = new ArrayList<Token>();

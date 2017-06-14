@@ -2,8 +2,6 @@ package intrepreter.manager.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import intrepreter.Validator.CheckJson;
-import intrepreter.Validator.impl.CheckJsonImpl;
 import intrepreter.constains.JsonTypeEnum;
 import intrepreter.constains.TokenTypeEnum;
 import intrepreter.domain.JsonObject;
@@ -54,18 +52,6 @@ public class JsonInterpreterImpl implements JsonInterpreter {
 
     @Override
     public List<Token> scanJsonString(String jsonString) {
-        /**
-         * 校验参数
-         */
-        CheckJson checkJson = new CheckJsonImpl();
-        checkJson.checkParam(jsonString);
-        String json = jsonString.trim().substring(1, jsonString.trim().length() - 1);
-        System.out.println(json);
-        String[] str = json.split(":");
-        for (String string : str) {
-            System.out.println(string);
-        }
-
         return null;
     }
 
