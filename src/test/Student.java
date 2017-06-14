@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by sunlei on 2017/6/12.
+ * Created by sunlei on 2017/6/14.
  */
-public class TestBean {
+public class Student {
     private String name;
     private Integer age;
     private Boolean isStudent;
     private List<String> hobbies;
 
 
-    public TestBean() {
+    public Student() {
         this.name = "shawn";
         this.age = 12;
         this.isStudent = true;
@@ -54,4 +54,5 @@ public class TestBean {
     public void setStudent(Boolean student) {
         isStudent = student;
     }
+
 }

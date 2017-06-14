@@ -1,14 +1,18 @@
 package intrepreter.manager.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import intrepreter.Validator.CheckJson;
 import intrepreter.Validator.impl.CheckJsonImpl;
 import intrepreter.constains.JsonTypeEnum;
-import intrepreter.domain.JsonObejct;
+import intrepreter.constains.TokenTypeEnum;
+import intrepreter.domain.JsonObject;
+import intrepreter.domain.Token;
 import intrepreter.manager.JsonInterpreter;
-import intrepreter.manager.JsonRuleFilter;
 import test.TestBean;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,32 +21,45 @@ import java.util.Map;
  */
 public class JsonInterpreterImpl implements JsonInterpreter {
 
-    JsonRuleFilter jsonRuleFilter = new JsonRuleFilterImpl();
+    private List<Token> jsonToken;
 
-    @Override
-    public Map<String, JsonObejct> interpreterJsonString(String jsonString) {
-        JsonTypeEnum jsonTypeEnum = jsonRuleFilter.filterRule(jsonString);
-        switch (jsonTypeEnum) {
-            case NULL:
-                break;
-            case NUMBER:
-            case STRING:
-            case BOOLEAN:
-            case ARRAY:
-            case OBJECT:
-            default:
-        }
-        return null;
+    public JsonInterpreterImpl(List<Token> jsonToken) {
+        this.jsonToken = jsonToken;
     }
 
     @Override
-    public Map<String, String> scanJsonString(String jsonString) {
+    public Map<String, JsonObject> interpreterJsonString() {
+        Token token = popToken();
+        Map<String, JsonObject> jsonMap = new HashMap<String, JsonObject>();
+        while (token.getTokenType() != TokenTypeEnum.END) {
+            if (token.getTokenType() == TokenTypeEnum.COLON) {
+                continue;
+            }
+            if (token.getTokenType() == TokenTypeEnum.OBJECT_START) {
+                jsonMap = parseObject(jsonMap);
+            }
+            token = popToken();
+        }
+        return jsonMap;
+    }
+
+    /**
+     * 出栈
+     *
+     * @return
+     */
+    Token popToken() {
+        return jsonToken.remove(0);
+    }
+
+    @Override
+    public List<Token> scanJsonString(String jsonString) {
         /**
          * 校验参数
          */
         CheckJson checkJson = new CheckJsonImpl();
         checkJson.checkParam(jsonString);
-        String json=jsonString.trim().substring(1,jsonString.trim().length()-1);
+        String json = jsonString.trim().substring(1, jsonString.trim().length() - 1);
         System.out.println(json);
         String[] str = json.split(":");
         for (String string : str) {
@@ -52,42 +69,91 @@ public class JsonInterpreterImpl implements JsonInterpreter {
         return null;
     }
 
+
     @Override
-    public Object praseNum(String jsonString) {
-        return Double.parseDouble(jsonString);
+    public JsonObject parseArray() {
+        Token currentToken = popToken();
+        List<Object> objectArray = new ArrayList<Object>();
+        JsonObject jsonObject = new JsonObject(JsonTypeEnum.ARRAY, objectArray);
+        do {
+            while (currentToken.getTokenType() == TokenTypeEnum.COLON) {
+                currentToken = popToken();
+            }
+            if (currentToken.getTokenType() == TokenTypeEnum.OBJECT_START) {
+                Map<String, JsonObject> map = new HashMap<String, JsonObject>();
+                map = parseObject(map);
+                objectArray.add(map);
+            }
+            if (isBaseType(currentToken)) {
+                objectArray.add(new JsonObject(getJsonType(currentToken.getTokenType()), currentToken.getTokenStr()));
+            }
+
+            currentToken = popToken();
+        } while (currentToken.getTokenType() != TokenTypeEnum.ARRAY_END);
+        return jsonObject;
     }
 
     @Override
-    public String praseString(String jsonString) {
-        return jsonString;
+    public Map<String, JsonObject> parseObject(Map<String, JsonObject> jsonMap) {
+        Token currentToken = popToken();
+        do {
+
+            while (currentToken.getTokenType() != TokenTypeEnum.STRING) {
+                currentToken = popToken();
+            }
+            String key = currentToken.getTokenStr();//key
+            currentToken = popToken();//:
+            if (currentToken.getTokenType() != TokenTypeEnum.SEMICOLON) {
+                throw new JSONException("Invalid JSON input.");
+            }
+            currentToken = popToken();
+            if (isBaseType(currentToken)) {
+                jsonMap.put(key, new JsonObject(getJsonType(currentToken.getTokenType()), currentToken.getTokenStr()));
+            }
+            if (currentToken.getTokenType() == TokenTypeEnum.ARRAY_START) {
+                Map<String, JsonObject> map = new HashMap<String, JsonObject>();
+                JsonObject jsonObject = parseArray();
+                jsonMap.put(key, jsonObject);
+            }
+            if (currentToken.getTokenType() == TokenTypeEnum.OBJECT_START) {
+                Map<String, JsonObject> map = new HashMap<String, JsonObject>();
+                map = parseObject(map);
+                jsonMap.put(key, new JsonObject(JsonTypeEnum.OBJECT, map));
+            }
+            currentToken = popToken();
+        }
+        while (currentToken.getTokenType() != TokenTypeEnum.OBJECT_END);
+        return jsonMap;
     }
 
-    @Override
-    public Boolean praseBoolean(String jsonString) {
-        return Boolean.valueOf(jsonString);
+    private boolean isBaseType(Token currentToken) {
+        TokenTypeEnum tokenTypeEnum = currentToken.getTokenType();
+        if (tokenTypeEnum == TokenTypeEnum.BOOLEAN || tokenTypeEnum == TokenTypeEnum.NUMBER || tokenTypeEnum == TokenTypeEnum.NULL | tokenTypeEnum == TokenTypeEnum.STRING) {
+            return true;
+        }
+        return false;
     }
 
-    @Override
-    public List<Object> praseArray(String jsonString) {
+    private JsonTypeEnum getJsonType(TokenTypeEnum tokenType) {
+        switch (tokenType) {
+            case NULL:
+                return JsonTypeEnum.NULL;
+            case NUMBER:
+                return JsonTypeEnum.NUMBER;
+            case STRING:
+                return JsonTypeEnum.STRING;
+            case BOOLEAN:
+                return JsonTypeEnum.BOOLEAN;
+        }
         return null;
     }
 
-    @Override
-    public Map<String, JsonObejct> praseObject(String jsonString) {
-        return null;
-    }
-
-    @Override
-    public Object praseNull(String jsonString) {
-        return null;
-    }
 
     public static void main(String[] args) {
         TestBean result = new TestBean();
         String jsonString = JSON.toJSONString(result);
 
         System.out.println(jsonString);
-        JsonInterpreter jsonInterpreter = new JsonInterpreterImpl();
-        jsonInterpreter.scanJsonString(jsonString);
+
     }
 }
