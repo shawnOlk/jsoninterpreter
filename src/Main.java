@@ -6,10 +6,12 @@ import intrepreter.manager.JsonInterpreter;
 import intrepreter.manager.TokenFilter;
 import intrepreter.manager.impl.JsonInterpreterImpl;
 import intrepreter.manager.impl.TokenFilterImpl;
+import intrepreter.utils.StringUtil;
 import test.School;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +19,8 @@ import java.util.Set;
 public class Main {
 
     public static void main(String[] args) {
-        School result = new School();
+        Object result = new Object();
+        result = getTestObject();
         String jsonString = JSON.toJSONString(result);
         System.out.println(jsonString);
         TokenFilter tokenFilter = new TokenFilterImpl(new BufferedReader(new StringReader(jsonString)));
@@ -31,14 +34,28 @@ public class Main {
         Set<String> keySet = map.keySet();
         System.out.println("Json Interpreter Map:");
         for (String key : keySet) {
-            if(map.get(key).getTypeEnum()!= JsonTypeEnum.ARRAY) {
+            if (map.get(key).getTypeEnum() != JsonTypeEnum.ARRAY) {
                 System.out.println(key + ":" + map.get(key).getJsonValues());
             }
-            if(map.get(key).getTypeEnum()== JsonTypeEnum.ARRAY) {
-                List<JsonObject> list=( List<JsonObject>)map.get(key).getJsonValues();
-                System.out.println(key + ":" +list);
+            if (map.get(key).getTypeEnum() == JsonTypeEnum.ARRAY) {
+                List<JsonObject> list = (List<JsonObject>) map.get(key).getJsonValues();
+                if(StringUtil.isNotEmpty(key)) {//对象中的数组
+                    System.out.println(key + ":" + list);
+                }
+                else {//JSON就是一个数组
+                    System.out.println(list);
+                }
             }
         }
 
+    }
+
+    private static Object getTestObject() {
+        List<School> result = new ArrayList<School>();
+        School school1 = new School();
+        School school2 = new School();
+        result.add(school1);
+        result.add(school2);
+        return result;
     }
 }

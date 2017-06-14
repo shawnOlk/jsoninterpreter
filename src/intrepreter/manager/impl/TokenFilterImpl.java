@@ -54,7 +54,6 @@ public class TokenFilterImpl implements TokenFilter {
         //判断是否为数字
         if (isNumber(c)) {
             return readeNum(c);
-
         }
         //判断是否为[
         if (c == '[') {

@@ -36,6 +36,10 @@ public class JsonInterpreterImpl implements JsonInterpreter {
             if (token.getTokenType() == TokenTypeEnum.OBJECT_START) {
                 jsonMap = parseObject(jsonMap);
             }
+            if (token.getTokenType() == TokenTypeEnum.ARRAY_START) {
+                JsonObject jsonObject = parseArray();
+                jsonMap.put("",jsonObject);
+            }
             token = popToken();
         }
         return jsonMap;
