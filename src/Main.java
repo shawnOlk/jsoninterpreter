@@ -21,10 +21,10 @@ public class Main {
         String jsonString = JSON.toJSONString(result);
         System.out.println(jsonString);
         TokenFilter tokenFilter = new TokenFilterImpl(new BufferedReader(new StringReader(jsonString)));
+        //符号解析
         List<Token> tokens = tokenFilter.getTokens();
-
         System.out.println(tokens);
-
+        //语法解析
         JsonInterpreter jsonInterpreter = new JsonInterpreterImpl(tokens);
         Map<String, JsonObject> map = jsonInterpreter.interpreterJsonString();
 
