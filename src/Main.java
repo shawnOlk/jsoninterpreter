@@ -20,7 +20,7 @@ public class Main {
 
     public static void main(String[] args) {
         Object result = new Object();
-        result = getTestObject();
+        result = getTestObject2();
         String jsonString = JSON.toJSONString(result);
         System.out.println(jsonString);
         TokenFilter tokenFilter = new TokenFilterImpl(new BufferedReader(new StringReader(jsonString)));
@@ -39,10 +39,9 @@ public class Main {
             }
             if (map.get(key).getTypeEnum() == JsonTypeEnum.ARRAY) {
                 List<JsonObject> list = (List<JsonObject>) map.get(key).getJsonValues();
-                if(StringUtil.isNotEmpty(key)) {//对象中的数组
+                if (StringUtil.isNotEmpty(key)) {//对象中的数组
                     System.out.println(key + ":" + list);
-                }
-                else {//JSON就是一个数组
+                } else {//JSON就是一个数组
                     System.out.println(list);
                 }
             }
@@ -57,5 +56,10 @@ public class Main {
         result.add(school1);
         result.add(school2);
         return result;
+    }
+
+    private static Object getTestObject2() {
+        School school1 = new School();
+        return school1;
     }
 }
