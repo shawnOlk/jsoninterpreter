@@ -10,7 +10,7 @@ public class School {
     private String name;
     private String address;
     private List<Student> students;
-    private int i=0;
+    private int i=1;
 
     public School() {
         this.name = "shawn";
