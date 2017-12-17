@@ -11,7 +11,7 @@ public class School {
     private String address;
     private List<Student> students;
 
-    private int i=35;
+    private int i=95;
 
     public School() {
         this.name = "shawn";
